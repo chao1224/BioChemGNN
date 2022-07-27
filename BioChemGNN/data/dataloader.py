@@ -1,5 +1,6 @@
+import string
 import torch
-from torch._six import container_abcs, string_classes, int_classes
+from collections.abc import Mapping, Sequence
 from BioChemGNN import data
 
 
@@ -13,19 +14,19 @@ def graph_collate(batch):
             storage = elem.storage()._new_shared(numel)
             out = elem.new(storage)
         return torch.stack(batch, 0, out=out)
-    elif isinstance(elem, int_classes):
+    elif isinstance(elem, int):
         return torch.LongTensor(batch)
     elif isinstance(elem, float):
         return torch.FloatTensor(batch)
-    elif isinstance(elem, string_classes):
+    elif isinstance(elem, str):
         return batch
     elif isinstance(elem, data.MoleculeGraph):
         return elem.pack(batch)
-    elif isinstance(elem, container_abcs.Mapping):
+    elif isinstance(elem, Mapping):
         return {key: graph_collate([d[key] for d in batch]) for key in elem}
-    elif isinstance(elem, container_abcs.Sequence) and (isinstance(elem[0], float) or isinstance(elem[0], int_classes)):
+    elif isinstance(elem, Sequence) and (isinstance(elem[0], float) or isinstance(elem[0], int_classes)):
         return torch.stack([graph_collate(samples) for samples in zip(*batch)], dim=1)
-    elif isinstance(elem, container_abcs.Sequence):
+    elif isinstance(elem, Sequence):
         it = iter(batch)
         elem_size = len(next(it))
         if not all(len(elem) == elem_size for elem in it):

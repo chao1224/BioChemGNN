@@ -11,7 +11,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from utils import *
 from BioChemGNN import data, datasets, utils, models
 from torch.utils.data import SubsetRandomSampler
 
